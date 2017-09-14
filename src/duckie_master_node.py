@@ -6,10 +6,12 @@ from geometry_msgs.msg import Twist,Vector3
 
 # define variables
 avoidingVehicle = False
+stopDetected=False
 twistmessage = 	Twist()
 controlPub = rospy.Publisher("cmd_vel", Twist, queue_size=10)
 
 def setMotorOff():
+	global twistmessage
 	twistmessage.linear.x = 0
 	twistmessage.linear.y = 0
 	twistmessage.linear.z = 0
@@ -17,14 +19,29 @@ def setMotorOff():
 	twistmessage.angular.y = 0
 	twistmessage.angular.z = 0
 
-def stopFunction(data):
-	print("ok")
-	# twistmessahe = data
-	# controlPub.publish(twistmessage)
+def stopFunction(req):
+	rospy.loginfo("StopService received infos")
+	global stopDetected, twistmessage
+	if req.data.linear.x == 0:
+		rospy.loginfo("StopService received stop message")
+		if twistmessage.linear.x > 0 and twistmessage.linear.y > 0:
+			stopDetected = True
+			setMotorOff()
+	else:
+		rospy.loginfo("StopService received go message")
+		stopDetected = False
+	controlPub.publish(twistmessage)
 	return StopServiceResponse(bool(True))
 
 def followFunction(data):
-	twistmessage = data
+	global stopDetected, twistmessage
+	if stopDetected is True:
+		if data.linear.x < 0 and data.linear.y < 0:
+			twistmessage = data
+		else:
+			setMotorOff()
+	else:
+		twistmessage = data
 	controlPub.publish(twistmessage)
 
 def master():
