@@ -22,13 +22,12 @@ def setMotorOff():
 
 def semaphoreFunction(req):
 	rospy.loginfo("SemaphoreService received infos")
-	global stopDetected, twistmessage
+	global semaphoreDetected
 	if req.data.linear.x == 1: # Found a RED Trafficlight
-		rospy.loginfo("SemaphoreService found a Red Trafficlight")
 		semaphoreDetected == True
 	else: # Previous RED Trafficlight turned off
 		semaphoreDetected == False
-
+	return SemaphoreServiceResponse(bool(True))
 	#TODO: Handle priority (this function doesn't turn off the motors)
 
 def stopFunction(req):
