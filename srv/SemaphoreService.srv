@@ -1,0 +1,3 @@
+geometry_msgs/Twist data 	# data about traffic light detection
+---
+bool ack 			# acknowledged informations 

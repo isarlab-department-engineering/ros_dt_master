@@ -7,6 +7,7 @@ from geometry_msgs.msg import Twist,Vector3
 # define variables
 avoidingVehicle = False
 stopDetected=False
+semaphoreDetected=False
 twistmessage = 	Twist()
 controlPub = rospy.Publisher("cmd_vel", Twist, queue_size=10)
 
@@ -18,6 +19,17 @@ def setMotorOff():
 	twistmessage.angular.x = 0
 	twistmessage.angular.y = 0
 	twistmessage.angular.z = 0
+
+def semaphoreFunction(req):
+	rospy.loginfo("SemaphoreService received infos")
+	global stopDetected, twistmessage
+	if req.data.linear.x == 1: # Found a RED Trafficlight
+		rospy.loginfo("SemaphoreService found a Red Trafficlight")
+		semaphoreDetected == True
+	else: # Previous RED Trafficlight turned off
+		semaphoreDetected == False
+
+	#TODO: Handle priority (this function doesn't turn off the motors)
 
 def stopFunction(req):
 	rospy.loginfo("StopService received infos")
@@ -50,6 +62,7 @@ def master():
 	# initialize ros node
 	rospy.init_node('master_node')
 	stop_service = rospy.Service('stop',StopService,stopFunction)
+	semaphore_service = rospy.Service('semaphore',SemaphoreService,semaphoreFunction)
 	rospy.Subscriber("follow_topic",Twist,followFunction)
 	rospy.loginfo("Master ready")
 	try:
