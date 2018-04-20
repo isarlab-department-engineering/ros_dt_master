@@ -49,17 +49,20 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
+ add_message_files(
+   FILES
 #   Twist.msg
-#   Message2.msg
-# )
+   Follow.msg
+   Lock.msg
+ )
 
 ## Generate services in the 'srv' folder
  add_service_files(
    FILES
    StopService.srv
    SemaphoreService.srv
+   RequestLockService.srv
+   ReleaseLockService.srv
 #   Service2.srv
  )
 
@@ -110,6 +113,7 @@ catkin_package(
 #  LIBRARIES duckie-master
 #  CATKIN_DEPENDS geometry_msgs roscpp rospy std_msgs
 #  DEPENDS system_lib
+	CATKIN_DEPENDS message_runtime
 )
 
 ###########

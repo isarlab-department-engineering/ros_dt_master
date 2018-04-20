@@ -1,0 +1,3 @@
+string id	#identificativo del nodo che rilascia il lock
+---
+bool ack	#Risposta del master

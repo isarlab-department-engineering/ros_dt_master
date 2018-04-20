@@ -1,0 +1,3 @@
+string id	#Identificativo del nodo richiedenti il lock
+---
+bool ack		#Risposta che comunica se il lock è stato assegnato
