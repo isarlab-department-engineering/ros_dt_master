@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import rospy,sys,roslib
+import time as t
 #import queue
 #from multiprocessing import Queue
 from Queue import PriorityQueue
@@ -23,7 +24,7 @@ stopDetected=False
 semaphoreDetected=False
 twistmessage = 	Twist()
 lock_msg = Lock()
-timeDetected = rospy.get_time()
+timeDetected = t.time()
 controlPub = rospy.Publisher("cmd_vel", Twist, queue_size=10)
 lockPub = rospy.Publisher("lock_shared", Lock, queue_size=10)
 
@@ -50,11 +51,11 @@ def semaphoreFunction(req):
 def stopFunction(req):
 	rospy.loginfo("StopService received infos")
 	global stopDetected, twistmessage, timeDetected
-	timeDetected = rospy.get_time()
+	timeDetected = t.time()
 	ducks_founded = req.ducks_founded
 	stopDetected = True
 	#setMotorOff()
-	rospy.loginfo("Motors Stopped, founded "+ducks_founded+" Ducks")
+	#rospy.loginfo("Motors Stopped, founded "+ducks_founded+" Ducks")
 	return StopServiceResponse(bool(True))
 
 def requestLockFunction(req):
@@ -111,15 +112,15 @@ def releaseLockFunction(req):
 
 def followFunction(data):
 	global stopDetected, twistmessage, timeDetected
-	now = rospy.get_time()
+	now = t.time()
 	id_node = data.id
 	twist = data.twist
 	if id_node == id_in_lock:
 		if stopDetected is True:
-		    if (now - timeDetected) > 1000:
-				stopDetected = False
-			else:
-				setMotorOff()
+		    if (now - timeDetected) > 1:
+			stopDetected = False
+		    else:
+			setMotorOff()
 		else:
 			twistmessage = twist
 		controlPub.publish(twistmessage)
