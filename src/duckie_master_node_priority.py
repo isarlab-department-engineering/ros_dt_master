@@ -23,6 +23,7 @@ stopDetected=False
 semaphoreDetected=False
 twistmessage = 	Twist()
 lock_msg = Lock()
+timeDetected = rospy.get_time()
 controlPub = rospy.Publisher("cmd_vel", Twist, queue_size=10)
 lockPub = rospy.Publisher("lock_shared", Lock, queue_size=10)
 
@@ -48,16 +49,12 @@ def semaphoreFunction(req):
 
 def stopFunction(req):
 	rospy.loginfo("StopService received infos")
-	global stopDetected, twistmessage
-	if req.data.linear.x == 0:
-		rospy.loginfo("StopService received stop message")
-		if twistmessage.linear.x > 0 and twistmessage.linear.y > 0:
-			stopDetected = True
-			setMotorOff()
-	else:
-		rospy.loginfo("StopService received go message")
-		stopDetected = False
-	controlPub.publish(twistmessage)
+	global stopDetected, twistmessage, timeDetected
+	timeDetected = rospy.get_time()
+	ducks_founded = req.ducks_founded
+	stopDetected = True
+	#setMotorOff()
+	rospy.loginfo("Motors Stopped, founded "+ducks_founded+" Ducks")
 	return StopServiceResponse(bool(True))
 
 def requestLockFunction(req):
@@ -113,13 +110,14 @@ def releaseLockFunction(req):
 
 
 def followFunction(data):
-	global stopDetected, twistmessage
+	global stopDetected, twistmessage, timeDetected
+	now = rospy.get_time()
 	id_node = data.id
 	twist = data.twist
 	if id_node == id_in_lock:
 		if stopDetected is True:
-			if twist.linear.x < 0 and twist.linear.y < 0:
-				twistmessage = twist
+		    if (now - timeDetected) > 1000:
+				stopDetected = False
 			else:
 				setMotorOff()
 		else:
