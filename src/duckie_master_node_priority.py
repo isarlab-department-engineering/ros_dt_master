@@ -10,7 +10,7 @@ from geometry_msgs.msg import Twist,Vector3
 from master_node.msg import *
 
 #define priority list
-priority_dict = {'lane':2, 'joy':1}
+priority_dict = {'aruco':3, 'lane':2, 'joy':1}
 
 
 #define priority queue
