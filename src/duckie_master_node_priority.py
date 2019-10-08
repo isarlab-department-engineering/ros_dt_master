@@ -2,15 +2,14 @@
 
 import rospy,sys,roslib
 import time as t
-#import queue
-#from multiprocessing import Queue
 from Queue import PriorityQueue
 from master_node.srv import *
 from geometry_msgs.msg import Twist,Vector3
 from master_node.msg import *
+from controller.msg import *
 
 #define priority list
-priority_dict = {'aruco':3, 'lane':2, 'joy':1}
+priority_dict = {'line':5, 'aruco':4, 'lane':3, 'stop':2, 'joy':1}
 
 
 #define priority queue
@@ -23,9 +22,11 @@ avoidingVehicle = False
 stopDetected=False
 semaphoreDetected=False
 twistmessage = 	Twist()
+gopigo_message = Gopigo()
 lock_msg = Lock()
 timeDetected = t.time()
-controlPub = rospy.Publisher("cmd_vel", Twist, queue_size=10)
+controlPub = rospy.Publisher("cmd_vel", Twist, queue_size=1)
+gopigoPub = rospy.Publisher("gopigo_vel", Gopigo, queue_size=1)
 lockPub = rospy.Publisher("lock_shared", Lock, queue_size=10)
 
 
@@ -122,8 +123,23 @@ def followFunction(data):
 		    else:
 			setMotorOff()
 		else:
-			twistmessage = twist
-		controlPub.publish(twistmessage)
+			if(id_node!="stop"):
+				twistmessage = twist
+				controlPub.publish(twistmessage)
+			else:
+				mode = twist.linear.y #Dentro linear.y ci metto il tipo 2 = cm 3 = deg
+				move = twist.linear.z #Dentro linear.z ci metto di quanto voglio spostarmi
+
+				if(mode == 2):
+					gopigo_message.mode = "cm"
+					gopigo_message.move = move
+					gopigoPub.publish(gopigo_message)
+				elif(mode == 3):
+					gopigo_message.mode = "deg"
+					gopigo_message.move = move
+					gopigoPub.publish(gopigo_message)
+				else:
+					rospy.loginfo("Messaggio in formato sbagliato")
 	else:
 		pass
 		#rospy.loginfo("Detected message without lock ["+id_node+"]")
