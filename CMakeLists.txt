@@ -54,6 +54,7 @@ find_package(catkin REQUIRED COMPONENTS
 #   Twist.msg
    Follow.msg
    Lock.msg
+   Gopigo.msg
  )
 
 ## Generate services in the 'srv' folder

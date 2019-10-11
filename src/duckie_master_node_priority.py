@@ -6,7 +6,6 @@ from Queue import PriorityQueue
 from master_node.srv import *
 from geometry_msgs.msg import Twist,Vector3
 from master_node.msg import *
-from controller.msg import *
 
 #define priority list
 priority_dict = {'line':5, 'aruco':4, 'lane':3, 'stop':2, 'joy':1}
